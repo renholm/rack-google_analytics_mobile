@@ -4,8 +4,8 @@ $:.push File.expand_path("../lib", __FILE__)
 Gem::Specification.new do |s|
   s.name        = "rack-google_analytics_mobile"
   s.version     = '0.0.1'
-  s.authors     = ["Kristoffer Renholm"]
-  s.email       = ["kristoffer@mentimeter.com"]
+  s.authors     = ["renholm"]
+  s.email       = ["kristoffer@renholm.se"]
   s.homepage    = ""
   s.summary     = %q{Adds Google Analytics Mobile tracking to pages}
 
