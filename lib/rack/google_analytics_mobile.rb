@@ -28,7 +28,8 @@ module Rack #:nodoc:
         status, headers, response = @app.call(env)
 
         if headers["Content-Type"] =~ /text\/html|application\/xhtml\+xml/
-          body = response.body
+          body = ''
+          response.each { |r| body << r }
           index = body.rindex("</body>")
 
           if index
@@ -119,8 +120,6 @@ module Rack #:nodoc:
           utmvid: visitor_id,
           utmip: get_ip(env["REMOTE_ADDR"])
         }
-
-        puts "URI: #{uri}"
 
         send_page_view(env, uri)
         send_response(visitor_id)
