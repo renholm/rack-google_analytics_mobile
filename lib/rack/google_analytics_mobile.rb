@@ -82,20 +82,25 @@ module Rack #:nodoc:
           "user_agent" => env["HTTP_USER_AGENT"],
           "header" => "Accepts-Language: #{env["HTTP_ACCEPT_LANGUAGE"]}"
         }
-    
+            
         OpenURI::open_uri(url, options)
       end
 
       def tracking_image(env, ga_account)
-        uri = Addressable::URI.new
-        uri.path = "/ga.gif"
-        uri.query_values = {
+        request = Rack::Request.new(env)
+
+        values = {
           utmac: ga_account,
           utmn: get_random_number,
           utmr: env['HTTP_REFERER'] || '-',
           utmp: env['REQUEST_URI'],
           guid: 'ON'
         }
+        values.merge!({utmdebug: '1'}) if request.params['utmdebug']
+
+        uri = Addressable::URI.new
+        uri.path = "/ga.gif"
+        uri.query_values = values
 
          "<img src=\"#{uri}\" alt=\"\" />"
       end
@@ -122,10 +127,10 @@ module Rack #:nodoc:
         }
 
         send_page_view(env, uri)
-        send_response(visitor_id)
+        send_response(visitor_id, request.params['utmdebug'] ? uri : nil)
       end
 
-      def send_response(visitor_id)
+      def send_response(visitor_id, uri)
         headers = {
           "Content-Type" => "image/gif",
           "Cache-Control" => "private, no-cache, no-cache=Set-Cookie, proxy-revalidate",
@@ -134,6 +139,7 @@ module Rack #:nodoc:
         }
 
         response = Rack::Response.new([GIF], 200, headers)
+        response['X-GA-MOBILE-URL'] = uri.to_s if uri
         response.set_cookie(COOKIE_NAME, {:value => visitor_id, :path => COOKIE_PATH, :expires => Time.now + COOKIE_USER_PERSISTENCE})
         response.finish
       end
