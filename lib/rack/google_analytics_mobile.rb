@@ -123,7 +123,7 @@ module Rack #:nodoc:
           utmac: account,
           utmcc: "__utma%3D999.999.999.999.999.1%3B",
           utmvid: visitor_id,
-          utmip: get_ip(env["HTTP_X_REAL_IP"])
+          utmip: get_ip(request.ip)
         }
 
         send_page_view(env, uri)
